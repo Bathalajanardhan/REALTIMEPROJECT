@@ -1,4 +1,4 @@
-  pipeline {
+pipeline {
     agent any
 
 
@@ -25,22 +25,22 @@
                 echo 'scanning project'
                 sh 'ls -ltr'
                 sh '''cd Application && mvn sonar:sonar \\
-                      -Dsonar.host.url=http://3.88.43.182:9000 \\
-                      -Dsonar.login=squ_f7d38d9efecde942052011718376e7479ae66764'''
+                      -Dsonar.host.url=http://3.91.79.10:9000/ \\
+                      -Dsonar.login=squ_77cb1659423a5e5be3d91ec5db3d118257b1d758'''
             }
     	}
        stage('Build docker image'){
             steps{
                 script{
                     echo 'docker image build'
-					sh 'cd Application && docker build -t devopshubg333/k8s:${BUILD_NUMBER} .'
+					sh 'cd Application && docker build -t bathalajanardhan/k8s:${BUILD_NUMBER} .'
                 }
             }
         }
 		
        stage('docker image scan'){
         steps{
-            sh "trivy image devopshubg333/k8s:${BUILD_NUMBER}"
+            sh "trivy image bathalajanardhan/k8s:${BUILD_NUMBER}"
         }
     }		
  
@@ -49,10 +49,11 @@
             steps{
                 script{
                    withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
-                   sh 'docker login -u devopshubg333 -p ${dockerhub}'
+                   sh 'docker login -u bathalajanardhan
+                    -p ${dockerhub}'
 
               }
-                   sh 'docker push devopshubg333/k8s:${BUILD_NUMBER}'
+                   sh 'docker push bathalajanardhan/k8s:${BUILD_NUMBER}'
                 }
             }
         }
@@ -60,13 +61,13 @@
       stage('Update kubernetes Deployment manifest File') {
         environment {
             GIT_REPO_NAME = "REALTIMEPROJECT"
-            GIT_USER_NAME = "devopstraininghub"
+            GIT_USER_NAME = "Bathalajanardhan"
         }
         steps {
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                 sh '''
-                    git config user.email "madhu@gmail.com"
-                    git config user.name "madhu"
+                    git config user.email "janardhan@gmail.com"
+                    git config user.name "janardhan"
                     BUILD_NUMBER=${BUILD_NUMBER}
                   
                     sed -i "s/k8s:.*/k8s:${BUILD_NUMBER}/g" Ansible/k8s_deployment.yaml
