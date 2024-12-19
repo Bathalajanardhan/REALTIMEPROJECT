@@ -33,14 +33,14 @@ pipeline {
             steps{
                 script{
                     echo 'docker image build'
-					sh 'cd Application && docker build -t bathalajanardhan/k8s:${BUILD_NUMBER} .'
+					sh 'cd Application && docker build -t janardhan00/k8s:${BUILD_NUMBER} .'
                 }
             }
         }
 		
        stage('docker image scan'){
         steps{
-            sh "trivy image bathalajanardhan/k8s:${BUILD_NUMBER}"
+            sh "trivy imagejanardhan00/k8s:${BUILD_NUMBER}"
         }
     }		
  
@@ -49,11 +49,10 @@ pipeline {
             steps{
                 script{
                    withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
-                   sh 'docker login -u bathalajanardhan
-                    -p ${dockerhub}'
+                   sh 'docker login -u janardhan00 -p ${dockerhub}'
 
               }
-                   sh 'docker push bathalajanardhan/k8s:${BUILD_NUMBER}'
+                   sh 'docker push janardhan00/k8s:${BUILD_NUMBER}'
                 }
             }
         }
