@@ -33,14 +33,14 @@ pipeline {
             steps{
                 script{
                     echo 'docker image build'
-					sh 'cd Application && docker build -t janardhan00/k8s:${BUILD_NUMBER} .'
+					sh 'cd Application && docker build -t janardhan00/batch14:${BUILD_NUMBER} .'
                 }
             }
         }
 		
        stage('docker image scan'){
         steps{
-            sh "trivy imagejanardhan00/k8s:${BUILD_NUMBER}"
+            sh "trivy image  janardhan00/batch14:${BUILD_NUMBER}"
         }
     }		
  
@@ -52,7 +52,7 @@ pipeline {
                    sh 'docker login -u janardhan00 -p ${dockerhub}'
 
               }
-                   sh 'docker push janardhan00/k8s:${BUILD_NUMBER}'
+                   sh 'docker push janardhan00/batch14:${BUILD_NUMBER}'
                 }
             }
         }
