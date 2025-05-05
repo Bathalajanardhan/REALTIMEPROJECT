@@ -1,7 +1,12 @@
 pipeline {
     agent any
-
-
+	
+	tools {
+	
+	maven 'maven3.9'
+	
+	
+        }
     stages {
         stage('Checkout Code') {
             steps {
@@ -25,22 +30,22 @@ pipeline {
                 echo 'scanning project'
                 sh 'ls -ltr'
                 sh '''cd Application && mvn sonar:sonar \\
-                      -Dsonar.host.url=http://3.91.79.10:9000/ \\
-                      -Dsonar.login=squ_77cb1659423a5e5be3d91ec5db3d118257b1d758'''
+                      -Dsonar.host.url=http://34.226.142.11:9001/ \\
+                      -Dsonar.login=squ_4e14deaaa84f16d108b7fb6ff6ae16458e169bec'''
             }
     	}
        stage('Build docker image'){
             steps{
                 script{
                     echo 'docker image build'
-					sh 'cd Application && docker build -t janardhan00/batch14:${BUILD_NUMBER} .'
+					sh 'cd Application && docker build -t janardhan03/prod:${BUILD_NUMBER} .'
                 }
             }
         }
 		
        stage('docker image scan'){
         steps{
-            sh "trivy image  janardhan00/batch14:${BUILD_NUMBER}"
+            sh "trivy image janardhan03/prod:${BUILD_NUMBER}"
         }
     }		
  
@@ -49,10 +54,10 @@ pipeline {
             steps{
                 script{
                    withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
-                   sh 'docker login -u janardhan00 -p ${dockerhub}'
+                   sh 'docker login -u janardhan03 -p ${dockerhub}'
 
               }
-                   sh 'docker push janardhan00/batch14:${BUILD_NUMBER}'
+                   sh 'docker push janardhan03/prod:${BUILD_NUMBER}'
                 }
             }
         }
@@ -69,7 +74,7 @@ pipeline {
                     git config user.name "janardhan"
                     BUILD_NUMBER=${BUILD_NUMBER}
                   
-                    sed -i "s/k8s:.*/k8s:${BUILD_NUMBER}/g" Ansible/k8s_deployment.yaml
+                    sed -i "s/prod:.*/prod:${BUILD_NUMBER}/g" Ansible/k8s_deployment.yaml
                     git add .
                     git commit -m "Update deployment image tag to version ${BUILD_NUMBER}"
                     git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
